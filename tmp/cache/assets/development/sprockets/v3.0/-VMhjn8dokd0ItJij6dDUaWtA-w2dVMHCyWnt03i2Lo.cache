@@ -1,0 +1,5 @@
+I"R(function() {
+  window.AppDispatcher = new FluxDispatcher();
+
+}).call(this);
+:ET

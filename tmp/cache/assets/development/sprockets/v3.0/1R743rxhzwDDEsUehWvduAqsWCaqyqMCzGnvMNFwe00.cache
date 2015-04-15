@@ -1,0 +1,43 @@
+I"%(function() {
+  var TermsStore,
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
+
+  TermsStore = (function(superClass) {
+    var dispatchToken;
+
+    extend(TermsStore, superClass);
+
+    function TermsStore() {
+      this.accepted = bind(this.accepted, this);
+      this.setAccepted = bind(this.setAccepted, this);
+      return TermsStore.__super__.constructor.apply(this, arguments);
+    }
+
+    TermsStore.prototype._accepted = false;
+
+    dispatchToken = AppDispatcher.register(function(payload) {
+      switch (payload.actionType) {
+        case "ACCEPT_TERMS":
+          return Terms.setAccepted(payload.accepted);
+      }
+    });
+
+    TermsStore.prototype.setAccepted = function(data) {
+      this._accepted = data;
+      return this.emit('TERMS_CHANGE');
+    };
+
+    TermsStore.prototype.accepted = function() {
+      return this._accepted === true;
+    };
+
+    return TermsStore;
+
+  })(EventEmitter);
+
+  window.Terms = new TermsStore();
+
+}).call(this);
+:ET
