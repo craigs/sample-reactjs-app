@@ -309,15 +309,15 @@ And put the modal in our DemoApp component
     </div>
 ```
 
-Refresh and look in awe. Unfortunately, it just needs two missing ingredients to make it work. Events and state.
+Refresh and look in awe. Unfortunately, it just needs a few missing ingredients to make it work. Events and state.
 
 Let's make it a little more interesting. Let’s make this modal our terms and conditions which must be accepted in order to look at our beautiful site. Until they click OK in our window, that modal is going to be visible.
 
-We are going to do a lot, but once our structure is in place, you will see just how great react is at making super dynamic interfaces.
+We are going to do a lot, but once our structure is in place, you will see just how great react.js is at making super dynamic interfaces.
 
 ## Stores
 
-The purpose of the store is to be the source of application state and to manage callbacks from actions. Let’s look at the store I created to record if I accepted to my terms and conditions or not.
+The purpose of the store is to be the source of application state and to manage callbacks from actions. Let’s look at the store I created to remember if I accepted my terms and conditions.
 
 ```
 class TermsStore extends EventEmitter
@@ -340,12 +340,11 @@ class TermsStore extends EventEmitter
 window.Terms = new TermsStore()
 ```
 
-There will only ever one instance of any store we create.
+There will only ever one instance of any store we create, in this case, it is Terms.
 
 I have an attribute _accepted just to record if I agree and a getter/setter method. The store also registers with the AppDispatcher to receive application messages. 
 
-Follow the message. Some kind of event happens that sends a message to our AppDispatcher. It broadcasts the payload to all registered callbacks. In my store, any payload that has the actionType of "ACCEPT_TERMS", I set the @_accepted variable and then emit the event "TERMS_CHANGE"
-
+Let's follow the message through the system. Some kind of event happens that sends a message to our AppDispatcher. It broadcasts the payload to all registered callbacks, to which TermsStore registered to receive messages. In TermsStore, any payload that has the actionType of "ACCEPT_TERMS", I set the @_accepted variable and then emit the event "TERMS_CHANGE". We now need to listen for the event in components that rely on the Terms state.
 
 # Listening to emitted events
 
@@ -360,15 +359,15 @@ Follow the message. Some kind of event happens that sends a message to our AppDi
       actionType: "ACCEPT_TERMS"
       accepted: false
 
-  _onChange: ->
+  onChange: ->
     this.setState
       terms_accepted: Terms.accepted()
 
   componentDidMount: ->
-    Terms.addListener("TERMS_CHANGE", this._onChange)
+    Terms.addListener("TERMS_CHANGE", this.onChange)
 
   componentWillUnmount: ->
-    Terms.removeListener("TERMS_CHANGE", this._onChange)
+    Terms.removeListener("TERMS_CHANGE", this.onChange)
 
   render: ->
     <div>
@@ -381,16 +380,46 @@ Follow the message. Some kind of event happens that sends a message to our AppDi
     </div>
 ```
 
-There is a lifecycle to components and we are going to patch in to the mount/unmount callbacks to register our listener to the "TERMS_CHANGE" event.
+There is a [lifecycle to components](https://facebook.github.io/react/docs/component-specs.html) and we are going to patch in to the componentDidMount/componentWillUnmount callbacks to register our listener for the "TERMS_CHANGE" event.
 
-When that event is fired, our _onChange method is called.
+When that event is fired, our onChange method is called and we can set our component's state which will cause the component to re-render. In our DemoApp, depending on this.state.terms_accepted, the modal either exists or does not.
 
-# State
+To complete the example, we will also modify our Modal component to dispatch the message when we click on our "I Accept" button.
 
-The last piece of the puzzle is state. Whenever state is changed, our component is re-rendered. In our simple app, we change the state of our component, the modal either opens or closes.
+```
+@Modal = React.createClass
+
+  _handleKeyDown: (event) ->
+    if event.keyCode == 27
+      this.close()
+
+  stopPropogation: (event) ->
+    event.stopPropagation()
+
+  close: ->
+    AppDispatcher.dispatch
+      actionType: "ACCEPT_TERMS"
+      accepted: true
+
+  componentDidMount: ->
+    document.addEventListener("keydown", this._handleKeyDown, false)
+    
+  componentDidUnmount: ->
+    document.removeEventListener("keydown", this._handleKeyDown, false)
+
+  render: ->
+    <div className="modal-background" onClick={ this.close }>
+      <div className="modal-window" onClick={ this.stopPropogation }>
+
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel placerat libero. Aliquam sed convallis odio.</p>
+
+        <Button onClick={ this.close } text="I accept the terms and conditions" />
+
+      </div>
+    </div>
+```
 
 And that is it, our first react.js rails app.
-
 
 # Making life easier
 

@@ -8,15 +8,15 @@
       actionType: "ACCEPT_TERMS"
       accepted: false
 
-  _onChange: ->
+  onChange: ->
     this.setState
       terms_accepted: Terms.accepted()
 
   componentDidMount: ->
-    Terms.addListener("TERMS_CHANGE", this._onChange)
+    Terms.addListener("TERMS_CHANGE", this.onChange)
 
   componentWillUnmount: ->
-    Terms.removeListener("TERMS_CHANGE", this._onChange)
+    Terms.removeListener("TERMS_CHANGE", this.onChange)
 
   render: ->
     <div>
