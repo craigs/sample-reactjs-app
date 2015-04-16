@@ -1,4 +1,8 @@
-# Sample React.js app integrated in to rails
+# Sample React.js app integrated with rails
+
+[React.js](https://facebook.github.io/react) is a library that is used to build brilliant user interfaces. Unfortunately for me, it was tough to find a getting started tutorial that showed that it could fit in to rails perfectly.
+
+Additionally, I wanted to keep my rails goodness including coffeescript in the asset pipeline. This tutorial will take you from a blank rails app and add support for react.js and [flux](https://facebook.github.io/flux/) and also walk you through creating your first components.
 
 # Rails app setup
 
@@ -430,4 +434,3 @@ rails new MyApp -m https://raw.githubusercontent.com/craigs/reactjs-rails-templa
 ```
 
 Happy building :)
-
