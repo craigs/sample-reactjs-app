@@ -1,7 +1,7 @@
 @DemoApp = React.createClass
 
   getInitialState: ->
-    { terms_accepted: this.props.terms_accepted }
+    { terms_accepted: @props.terms_accepted }
 
   onClick: ->
     AppDispatcher.dispatch
@@ -9,21 +9,21 @@
       accepted: false
 
   onChange: ->
-    this.setState
+    @setState
       terms_accepted: Terms.accepted()
 
   componentDidMount: ->
-    Terms.addListener("TERMS_CHANGE", this.onChange)
+    Terms.addListener("TERMS_CHANGE", @onChange)
 
   componentWillUnmount: ->
-    Terms.removeListener("TERMS_CHANGE", this.onChange)
+    Terms.removeListener("TERMS_CHANGE", @onChange)
 
   render: ->
     <div>
       <h1>Sample React.js demo in Rails</h1>
-      <Button onClick={ this.onClick } text="Terms and Conditions" />
+      <Button onClick={ @onClick } text="Terms and Conditions" />
       {
-        if this.state.terms_accepted == false
+        if @state.terms_accepted == false
           <Modal />
       }
     </div>

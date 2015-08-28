@@ -35,7 +35,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'haml-rails'
 
 # React.js
-gem 'react-rails', '~> 1.0.0.pre', github: 'reactjs/react-rails'
+gem 'react-rails'
 gem 'flux-rails-assets'
 gem 'sprockets-coffee-react'
 

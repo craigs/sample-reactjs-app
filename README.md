@@ -6,7 +6,7 @@ Additionally, I wanted to keep my rails goodness including coffeescript in the a
 
 # Rails app setup
 
-OK, lets start by making a simple rails app. 
+OK, lets start by making a simple rails app.
 
 ```
 rails new SampleReactApp
@@ -20,7 +20,7 @@ Let’s add in a few gems to get started. In your gemfile add in these react bas
 gem 'haml-rails'
 
 # React.js
-gem 'react-rails', '~> 1.0.0.pre', github: 'reactjs/react-rails'
+gem 'react-rails'
 gem 'flux-rails-assets'
 gem 'sprockets-coffee-react'
 ```
@@ -102,7 +102,7 @@ Now, we can add in our react.js libraries to our javascript pipeline.
 #= require_tree .
 ```
 
-Do a quick smoke test and make sure everything is running normally. 
+Do a quick smoke test and make sure everything is running normally.
 
 # Diving in to react.js
 
@@ -121,7 +121,7 @@ The .cjsx extension means we are writing a JSX component, but doing it in coffee
     alert "You clicked the onClick handler"
 
   render: ->
-    <button onClick={ this.onClick }>My Button</button>
+    <button onClick={ @onClick }>My Button</button>
 ```
 
 The render method renders our component's html, but you will notice that the onClick handler calls our onClick method in the class.
@@ -134,7 +134,7 @@ In out welcome#index view, we are going to use our component.
 = react_component "Button", { }, { prerender: true }
 ```
 
-The important thing to realise here is that the component is pre-rendered on the server and the javascript events are attached to the rendered component. Without server side rendering, browsers will need to render the page client side and search engines will get empty content when scanning our pages. 
+The important thing to realise here is that the component is pre-rendered on the server and the javascript events are attached to the rendered component. Without server side rendering, browsers will need to render the page client side and search engines will get empty content when scanning our pages.
 
 Fire up rails and check out your magnificent react button. Very cool.
 
@@ -147,7 +147,7 @@ But let’s make it a little more configurable, let’s add the button text ...
 And change the render method to use this new parameter we just passed in.
 
 ```
-<button onClick={ this.onClick }>{ this.props.text }</button>
+<button onClick={ @onClick }>{ @props.text }</button>
 ```
 
 In react.js land, these parameters are called properties.
@@ -184,7 +184,7 @@ We need one more change. I don’t like the onClick handler to be in the button 
 @Button = React.createClass
 
   render: ->
-    <button onClick={ this.props.onClick }>{ this.props.text }</button>
+    <button onClick={ @props.onClick }>{ @props.text }</button>
 ```
 
 My DemoApp component then passes this in like
@@ -196,7 +196,7 @@ My DemoApp component then passes this in like
     alert "You clicked the DemoApp.onClick handler"
 
   render: ->
-    <Button onClick={ this.onClick } text="Super Button" />
+    <Button onClick={ @onClick } text="Super Button" />
 ```
 
 Refresh and check it out.
@@ -214,7 +214,7 @@ I’ll add the header to my app component instead.
   render: ->
     <div>
       <h1>Sample React.js demo in Rails</h1>
-      <Button onClick={ this.onClick } text="Super Button" />
+      <Button onClick={ @onClick } text="Super Button" />
     </div>
 ```
 
@@ -227,9 +227,9 @@ We’re going to really jump in deep here. This is my modal component.
 ```
 @Modal = React.createClass
 
-  _handleKeyDown: (event) ->
+  handleKeyDown: (event) ->
     if event.keyCode == 27
-      this.close()
+      @close()
 
   stopPropogation: (event) ->
     event.stopPropagation()
@@ -238,18 +238,18 @@ We’re going to really jump in deep here. This is my modal component.
     alert "Close the modal!"
 
   componentDidMount: ->
-    document.addEventListener("keydown", this._handleKeyDown, false)
-    
+    document.addEventListener("keydown", @handleKeyDown, false)
+
   componentDidUnmount: ->
-    document.removeEventListener("keydown", this._handleKeyDown, false)
+    document.removeEventListener("keydown", @handleKeyDown, false)
 
   render: ->
-    <div className="modal-background" onClick={ this.close }>
-      <div className="modal-window" onClick={ this.stopPropogation }>
+    <div className="modal-background" onClick={ @close }>
+      <div className="modal-window" onClick={ @stopPropogation }>
 
         <p>This is some content</p>
 
-        <Button onClick={ this.close } text="OK" />
+        <Button onClick={ @close } text="OK" />
 
       </div>
     </div>
@@ -290,7 +290,7 @@ We also need a bit of scss to make it look right.
       top: 0;
 
       &:hover {
-        color: rgba(0,0,0,1);    
+        color: rgba(0,0,0,1);
       }
     }
   }
@@ -308,7 +308,7 @@ And put the modal in our DemoApp component
   render: ->
     <div>
       <h1>Sample React.js demo in Rails</h1>
-      <Button onClick={ this.onClick } text="Super Button" />
+      <Button onClick={ @onClick } text="Super Button" />
       <Modal />
     </div>
 ```
@@ -346,7 +346,7 @@ window.Terms = new TermsStore()
 
 There will only ever one instance of any store we create, in this case, it is Terms.
 
-I have an attribute _accepted just to record if I agree and a getter/setter method. The store also registers with the AppDispatcher to receive application messages. 
+I have an attribute _accepted just to record if I agree and a getter/setter method. The store also registers with the AppDispatcher to receive application messages.
 
 Let's follow the message through the system. Some kind of event happens that sends a message to our AppDispatcher. It broadcasts the payload to all registered callbacks, to which TermsStore registered to receive messages. In TermsStore, any payload that has the actionType of "ACCEPT_TERMS", I set the @_accepted variable and then emit the event "TERMS_CHANGE". We now need to listen for the event in components that rely on the Terms state.
 
@@ -356,7 +356,7 @@ Let's follow the message through the system. Some kind of event happens that sen
 @DemoApp = React.createClass
 
   getInitialState: ->
-    { terms_accepted: this.props.terms_accepted }
+    { terms_accepted: @props.terms_accepted }
 
   onClick: ->
     AppDispatcher.dispatch
@@ -364,21 +364,21 @@ Let's follow the message through the system. Some kind of event happens that sen
       accepted: false
 
   onChange: ->
-    this.setState
+    @setState
       terms_accepted: Terms.accepted()
 
   componentDidMount: ->
-    Terms.addListener("TERMS_CHANGE", this.onChange)
+    Terms.addListener("TERMS_CHANGE", @onChange)
 
   componentWillUnmount: ->
-    Terms.removeListener("TERMS_CHANGE", this.onChange)
+    Terms.removeListener("TERMS_CHANGE", @onChange)
 
   render: ->
     <div>
       <h1>Sample React.js demo in Rails</h1>
-      <Button onClick={ this.onClick } text="Terms and Conditions" />
+      <Button onClick={ @onClick } text="Terms and Conditions" />
       {
-        if this.state.terms_accepted == false
+        if @state.terms_accepted == false
           <Modal />
       }
     </div>
@@ -386,16 +386,16 @@ Let's follow the message through the system. Some kind of event happens that sen
 
 There is a [lifecycle to components](https://facebook.github.io/react/docs/component-specs.html) and we are going to patch in to the componentDidMount/componentWillUnmount callbacks to register our listener for the "TERMS_CHANGE" event.
 
-When that event is fired, our onChange method is called and we can set our component's state which will cause the component to re-render. In our DemoApp, depending on this.state.terms_accepted, the modal either exists or does not.
+When that event is fired, our onChange method is called and we can set our component's state which will cause the component to re-render. In our DemoApp, depending on @state.terms_accepted, the modal either exists or does not.
 
 To complete the example, we will also modify our Modal component to dispatch the message when we click on our "I Accept" button.
 
 ```
 @Modal = React.createClass
 
-  _handleKeyDown: (event) ->
+  handleKeyDown: (event) ->
     if event.keyCode == 27
-      this.close()
+      @close()
 
   stopPropogation: (event) ->
     event.stopPropagation()
@@ -406,18 +406,18 @@ To complete the example, we will also modify our Modal component to dispatch the
       accepted: true
 
   componentDidMount: ->
-    document.addEventListener("keydown", this._handleKeyDown, false)
-    
+    document.addEventListener("keydown", @handleKeyDown, false)
+
   componentDidUnmount: ->
-    document.removeEventListener("keydown", this._handleKeyDown, false)
+    document.removeEventListener("keydown", @handleKeyDown, false)
 
   render: ->
-    <div className="modal-background" onClick={ this.close }>
-      <div className="modal-window" onClick={ this.stopPropogation }>
+    <div className="modal-background" onClick={ @close }>
+      <div className="modal-window" onClick={ @stopPropogation }>
 
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel placerat libero. Aliquam sed convallis odio.</p>
 
-        <Button onClick={ this.close } text="I accept the terms and conditions" />
+        <Button onClick={ @close } text="I accept the terms and conditions" />
 
       </div>
     </div>
